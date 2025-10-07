@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Service Status{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="text-center mb-5">
+            <h1 class="display-5 mb-3">
+                <i class="fas fa-server text-primary"></i>
+                Service Status
+            </h1>
+            <p class="lead text-muted">
+                Check the connectivity and status of all integrated services
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        <div class="row">
+            <!-- DataForSEO Status -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 {% if services.dataforseo %}border-success{% else %}border-danger{% endif %}">
+                    <div class="card-header text-center">
+                        <i class="fas fa-globe-americas fa-2x {% if services.dataforseo %}text-success{% else %}text-danger{% endif %} mb-2"></i>
+                        <h5 class="mb-0">DataForSEO API</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <span class="status-indicator {% if services.dataforseo %}status-success{% else %}status-error{% endif %}"></span>
+                            <span class="fw-bold">
+                                {% if services.dataforseo %}
+                                Connected
+                                {% else %}
+                                Not Connected
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="card-text small text-muted">
+                            {% if services.dataforseo %}
+                            ✅ Ready to fetch live SERP results
+                            {% else %}
+                            ❌ Check your API credentials
+                            {% endif %}
+                        </p>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <strong>Function:</strong> Live SERP data retrieval
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google Ranking API Status -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 {% if services.google_ranking %}border-success{% else %}border-danger{% endif %}">
+                    <div class="card-header text-center">
+                        <i class="fas fa-chart-line fa-2x {% if services.google_ranking %}text-success{% else %}text-danger{% endif %} mb-2"></i>
+                        <h5 class="mb-0">Google Ranking API</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <span class="status-indicator {% if services.google_ranking %}status-success{% else %}status-error{% endif %}"></span>
+                            <span class="fw-bold">
+                                {% if services.google_ranking %}
+                                Connected
+                                {% else %}
+                                Not Connected
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="card-text small text-muted">
+                            {% if services.google_ranking %}
+                            ✅ Ready to rank content with AI
+                            {% else %}
+                            ❌ Check your Google Cloud setup
+                            {% endif %}
+                        </p>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <strong>Function:</strong> AI-powered content ranking
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Web Crawler Status -->
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 {% if services.web_crawler %}border-success{% else %}border-warning{% endif %}">
+                    <div class="card-header text-center">
+                        <i class="fas fa-spider fa-2x {% if services.web_crawler %}text-success{% else %}text-warning{% endif %} mb-2"></i>
+                        <h5 class="mb-0">Web Crawler</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <span class="status-indicator {% if services.web_crawler %}status-success{% else %}status-warning{% endif %}"></span>
+                            <span class="fw-bold">
+                                {% if services.web_crawler %}
+                                Available
+                                {% else %}
+                                Unavailable
+                                {% endif %}
+                            </span>
+                        </div>
+                        <p class="card-text small text-muted">
+                            {% if services.web_crawler %}
+                            ✅ Ready to crawl web content
+                            {% else %}
+                            ⚠️ Crawler service unavailable
+                            {% endif %}
+                        </p>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <strong>Function:</strong> Web content extraction
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Status -->
+        <div class="metadata-section text-center">
+            {% set all_services_ok = services.dataforseo and services.google_ranking and services.web_crawler %}
+            <h4 class="{% if all_services_ok %}text-success{% else %}text-warning{% endif %} mb-3">
+                <i class="fas fa-{% if all_services_ok %}check-circle{% else %}exclamation-triangle{% endif %} me-2"></i>
+                {% if all_services_ok %}
+                All Services Operational
+                {% else %}
+                Some Services Need Attention
+                {% endif %}
+            </h4>
+            
+            {% if all_services_ok %}
+            <p class="text-muted mb-4">
+                All services are connected and ready. You can now perform full searches with live SERP data, 
+                content crawling, and AI-powered ranking.
+            </p>
+            <a href="/" class="btn btn-success btn-lg">
+                <i class="fas fa-search me-2"></i>
+                Start Searching
+            </a>
+            {% else %}
+            <p class="text-muted mb-4">
+                Some services need configuration. Check the setup instructions below to get all services working.
+            </p>
+            <a href="/" class="btn btn-warning btn-lg">
+                <i class="fas fa-search me-2"></i>
+                Search Anyway
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Setup Instructions -->
+        <div class="accordion mt-5" id="setupAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#setupCollapse">
+                        <i class="fas fa-cog me-2"></i>
+                        Setup Instructions
+                    </button>
+                </h2>
+                <div id="setupCollapse" class="accordion-collapse collapse" data-bs-parent="#setupAccordion">
+                    <div class="accordion-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-globe-americas me-2"></i>DataForSEO Setup</h6>
+                                <ol class="small">
+                                    <li>Register at <a href="https://dataforseo.com" target="_blank">DataForSEO.com</a></li>
+                                    <li>Get your API credentials</li>
+                                    <li>Set environment variables:
+                                        <ul>
+                                            <li><code>DATAFORSEO_LOGIN</code></li>
+                                            <li><code>DATAFORSEO_PASSWORD</code></li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-cloud me-2"></i>Google Cloud Setup</h6>
+                                <ol class="small">
+                                    <li>Create a Google Cloud Project</li>
+                                    <li>Enable Discovery Engine API</li>
+                                    <li>Create a service account</li>
+                                    <li>Set environment variables:
+                                        <ul>
+                                            <li><code>GOOGLE_CLOUD_PROJECT_ID</code></li>
+                                            <li><code>GOOGLE_APPLICATION_CREDENTIALS</code></li>
+                                        </ul>
+                                    </li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3" role="alert">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Note:</strong> The search engine will work with partial functionality even if some services are unavailable. 
+                            Missing services will use fallback methods.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="accordion mt-3" id="apiAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#apiCollapse">
+                        <i class="fas fa-code me-2"></i>
+                        API Endpoints
+                    </button>
+                </h2>
+                <div id="apiCollapse" class="accordion-collapse collapse" data-bs-parent="#apiAccordion">
+                    <div class="accordion-body">
+                        <h6>Available REST Endpoints:</h6>
+                        <ul class="list-unstyled">
+                            <li><code>POST /api/search</code> - Perform a search</li>
+                            <li><code>GET /api/summary/{query}</code> - Get search summary</li>
+                            <li><code>GET /api/status</code> - Check service status</li>
+                        </ul>
+                        
+                        <h6 class="mt-3">Example API Request:</h6>
+                        <pre class="bg-light p-3 rounded"><code>{
+    "query": "artificial intelligence",
+    "location": "United States",
+    "language": "en"
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

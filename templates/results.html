@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Search Results for "{{ query }}"{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Search Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>Search Results for "<span class="text-primary">{{ query }}</span>"</h2>
+                <p class="text-muted mb-0">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ results.metadata.total_time_seconds }} seconds
+                    {% if results.metadata.google_ranking_api_used %}
+                    <span class="badge bg-success ms-2">
+                        <i class="fas fa-robot me-1"></i>
+                        AI Ranked
+                    </span>
+                    {% endif %}
+                </p>
+            </div>
+            <a href="/" class="btn btn-outline-primary">
+                <i class="fas fa-search me-2"></i>
+                New Search
+            </a>
+        </div>
+
+        <!-- Search Summary -->
+        <div class="metadata-section">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-primary mb-1">{{ summary['total_results'] }}</h4>
+                        <small class="text-muted">Total Results</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-success mb-1">{{ summary['successfully_ranked'] }}</h4>
+                        <small class="text-muted">AI Ranked</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-warning mb-1">{{ "%.3f"|format(summary['average_ranking_score']) }}</h4>
+                        <small class="text-muted">Avg Score</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="text-center">
+                        <h4 class="text-info mb-1">{{ summary['domains_found'] }}</h4>
+                        <small class="text-muted">Unique Domains</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Metadata -->
+        <div class="accordion mb-4" id="metadataAccordion">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="metadataHeading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#metadataCollapse">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Processing Details
+                    </button>
+                </h2>
+                <div id="metadataCollapse" class="accordion-collapse collapse" data-bs-parent="#metadataAccordion">
+                    <div class="accordion-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><strong>Query:</strong> {{ results.query }}</li>
+                                    <li><strong>Location:</strong> {{ results.location }}</li>
+                                    <li><strong>Language:</strong> {{ results.language }}</li>
+                                    <li><strong>SERP Results:</strong> {{ results.metadata.serp_count }}</li>
+                                    <li><strong>URLs Crawled:</strong> {{ results.metadata.crawled_count }}</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul class="list-unstyled">
+                                    <li><strong>Successful Crawls:</strong> {{ results.metadata.successful_crawls }}</li>
+                                    <li><strong>Crawl Time:</strong> {{ results.metadata.crawl_time_seconds }}s</li>
+                                    <li><strong>Ranking Time:</strong> {{ results.metadata.ranking_time_seconds }}s</li>
+                                    <li><strong>Total Processing:</strong> {{ results.metadata.total_time_seconds }}s</li>
+                                    <li><strong>Total Word Count:</strong> {{ summary['total_word_count'] }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        {% if results.results %}
+        <div class="row">
+            {% for result in results.results %}
+            <div class="col-12 mb-4">
+                <div class="card result-card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <span class="badge bg-secondary me-2">#{{ result.serp_position }}</span>
+                            {% if result.ranking_score > 0 %}
+                            <span class="score-badge me-2">
+                                Score: {{ "%.3f"|format(result.ranking_score) }}
+                            </span>
+                            {% endif %}
+                            <small class="text-muted">
+                                <i class="fas fa-{{ 'check-circle text-success' if result.crawl_status == 'success' else 'exclamation-triangle text-warning' if result.crawl_status == 'timeout' else 'times-circle text-danger' }}"></i>
+                                {{ result.crawl_status|title }}
+                            </small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard('{{ result.url }}')">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{{ result.url }}" target="_blank" class="text-decoration-none">
+                                {{ result.title or result.serp_title or "No Title" }}
+                                <i class="fas fa-external-link-alt ms-1 small text-muted"></i>
+                            </a>
+                        </h5>
+                        
+                        <p class="text-muted small mb-2">
+                            <i class="fas fa-link me-1"></i>
+                            {{ result.domain }}
+                            {% if result.breadcrumb %}
+                            <span class="mx-2">•</span>
+                            {{ result.breadcrumb }}
+                            {% endif %}
+                        </p>
+
+                        {% if result.description or result.serp_description %}
+                        <p class="card-text">
+                            {{ result.description or result.serp_description }}
+                        </p>
+                        {% endif %}
+
+                        {% if result.crawl_status == 'success' %}
+                        <!-- Content Preview -->
+                        {% if result.content %}
+                        <div class="mt-3">
+                            <h6 class="text-muted">
+                                <i class="fas fa-file-text me-1"></i>
+                                Content Preview ({{ result.word_count }} words)
+                            </h6>
+                            <div class="bg-light p-3 rounded">
+                                <p class="mb-0">
+                                    {{ result.content[:300] }}{% if result.content|length > 300 %}...{% endif %}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Headings -->
+                        {% if result.headings %}
+                        <div class="mt-3">
+                            <h6 class="text-muted">
+                                <i class="fas fa-heading me-1"></i>
+                                Key Headings
+                            </h6>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for heading in result.headings.split(' | ')[:3] %}
+                                <span class="badge bg-light text-dark">{{ heading }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Raw Metadata Accordion -->
+                        <div class="accordion mt-3" id="metadata{{ loop.index }}">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#metadataContent{{ loop.index }}">
+                                        <i class="fas fa-code me-2"></i>
+                                        Raw Metadata & Scores
+                                    </button>
+                                </h2>
+                                <div id="metadataContent{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#metadata{{ loop.index }}">
+                                    <div class="accordion-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6>SERP Data</h6>
+                                                <ul class="list-unstyled small">
+                                                    <li><strong>Position:</strong> {{ result.serp_position }}</li>
+                                                    <li><strong>SERP Title:</strong> {{ result.serp_title or "N/A" }}</li>
+                                                    <li><strong>SERP Description:</strong> {{ result.serp_description or "N/A" }}</li>
+                                                    <li><strong>Domain:</strong> {{ result.domain }}</li>
+                                                    <li><strong>Website:</strong> {{ result.website_name or "N/A" }}</li>
+                                                    <li><strong>URL:</strong> <code>{{ result.url }}</code></li>
+                                                </ul>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6>Crawled Data</h6>
+                                                <ul class="list-unstyled small">
+                                                    <li><strong>Crawl Status:</strong> {{ result.crawl_status }}</li>
+                                                    <li><strong>Status Code:</strong> {{ result.crawl_status_code }}</li>
+                                                    <li><strong>Page Title:</strong> {{ result.title or "N/A" }}</li>
+                                                    <li><strong>Meta Description:</strong> {{ result.description or "N/A" }}</li>
+                                                    <li><strong>Word Count:</strong> {{ result.word_count }}</li>
+                                                    <li><strong>Ranking Score:</strong> {{ "%.4f"|format(result.ranking_score) if result.ranking_score > 0 else "N/A" }}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <!-- Failed Crawl Info -->
+                        <div class="alert alert-warning mt-3" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i>
+                            <strong>Crawl Failed:</strong> 
+                            {% if result.crawl_status == 'timeout' %}
+                            Request timed out
+                            {% elif result.crawl_status == 'error' %}
+                            HTTP {{ result.crawl_status_code }} error
+                            {% else %}
+                            {{ result.crawl_status|title }}
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+            <h4>No Results Found</h4>
+            <p class="text-muted">{{ results.error if results.error else "Try adjusting your search query or parameters." }}</p>
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Back to Search
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

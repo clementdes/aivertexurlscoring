@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Search Engine - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-8">
+        <div class="text-center mb-5">
+            <h1 class="display-4 mb-3">
+                <i class="fas fa-search-plus text-primary"></i>
+                Advanced Search Engine <br>by metehan.ai
+            </h1>
+            <p class="lead text-muted">
+                Powered by DataForSEO Live SERPs & Google's Latest Ranking API
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <div class="search-container">
+            <form method="post" action="/search" onsubmit="showLoading()" class="search-form">
+                <div class="card shadow-lg">
+                    <div class="card-body p-4">
+                        <div class="input-group input-group-lg mb-3">
+                            <input type="text" 
+                                   class="form-control" 
+                                   name="query" 
+                                   placeholder="Enter your search query..." 
+                                   required
+                                   autocomplete="off">
+                            <button class="btn btn-primary search-btn" type="submit">
+                                <i class="fas fa-search me-2"></i>
+                                Search
+                            </button>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="location" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    Location
+                                </label>
+                                <select class="form-select" name="location" id="location">
+                                    <option value="United States">United States</option>
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="Canada">Canada</option>
+                                    <option value="Australia">Australia</option>
+                                    <option value="Germany">Germany</option>
+                                    <option value="France">France</option>
+                                    <option value="Japan">Japan</option>
+                                    <option value="India">India</option>
+                                    <option value="Brazil">Brazil</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="language" class="form-label">
+                                    <i class="fas fa-language me-1"></i>
+                                    Language
+                                </label>
+                                <select class="form-select" name="language" id="language">
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="de">German</option>
+                                    <option value="it">Italian</option>
+                                    <option value="pt">Portuguese</option>
+                                    <option value="ja">Japanese</option>
+                                    <option value="ko">Korean</option>
+                                    <option value="zh">Chinese</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="loading text-center mt-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Processing your search...</p>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-globe-americas fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Live SERP Data</h5>
+                        <p class="card-text text-muted">
+                            Real-time search results from Google using DataForSEO API
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-spider fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Content Crawling</h5>
+                        <p class="card-text text-muted">
+                            Advanced web crawling to extract full page content
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">AI Ranking</h5>
+                        <p class="card-text text-muted">
+                            Google's latest Ranking API for precise relevance scoring
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info mt-4" role="alert">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>How it works:</strong>
+            We fetch live search results, crawl the actual content from each page, 
+            and then use Google's advanced AI ranking system to score relevance against your query.
+        </div>
+    </div>
+</div>
+{% endblock %} 
